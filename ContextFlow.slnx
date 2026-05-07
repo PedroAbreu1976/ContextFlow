@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="ContextFlow.Demo/ContextFlow.Demo.csproj" />
+  <Project Path="ContextFlow.Tests/ContextFlow.Tests.csproj" Id="e295c195-848c-4e96-9ee8-4804dc9d319f" />
+  <Project Path="ContextFlow/ContextFlow.csproj" />
+</Solution>

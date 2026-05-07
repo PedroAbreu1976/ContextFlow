@@ -1,0 +1,27 @@
+﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.Extensions.DependencyInjection;
+using ContextFlow;
+using System.Reflection;
+using ContextFlow.Demo.ChainDemo;
+using ContextFlow.Demo.PipelineDemo;
+using ContextFlow.Demo.GraphDemo;
+
+Console.WriteLine("Hello, World!");
+var provider = new ServiceCollection()
+    .AddPipelines(Assembly.GetExecutingAssembly())
+    .BuildServiceProvider();
+
+var pipeline = provider.GetRequiredService<IPipeline<PipelineContext>>();
+var pipelineContext = new PipelineContext();
+await pipeline.ExecuteAsync(pipelineContext);
+Console.WriteLine(pipelineContext.ToString());
+
+var chain = provider.GetRequiredService<IChainOfResponsibility<ChainContext>>();
+var chainContext = new ChainContext();
+await chain.ExecuteAsync(chainContext);
+Console.WriteLine(chainContext.ToString());
+
+var graph = provider.GetRequiredService<IDependencyGraph<GraphContext>>();
+var graphContext = new GraphContext();
+await graph.ExecuteAsync(graphContext);
+Console.WriteLine(graphContext.ToString());
