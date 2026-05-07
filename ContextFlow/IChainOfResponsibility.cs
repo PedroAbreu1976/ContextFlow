@@ -13,7 +13,7 @@ public interface IChainOfResponsibility<TContext>
     /// <param name="context">The context being processed.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The processed context.</returns>
-    Task<TContext> ExecuteAsync(TContext context, CancellationToken ct = default);
+    Task<TContext> ExecuteAsync(TContext context, CancellationToken? ct = default);
 }
 
 /// <summary>
@@ -29,7 +29,7 @@ public class ChainOfResponsibility<TContext>(IEnumerable<IChainOfResponsibilityS
     /// <param name="context">The context being processed.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The processed context.</returns>
-    public async Task<TContext> ExecuteAsync(TContext context, CancellationToken ct = default)
+    public async Task<TContext> ExecuteAsync(TContext context, CancellationToken? ct = default)
     {
         if (steps == null || !steps.Any())
         {
@@ -39,6 +39,10 @@ public class ChainOfResponsibility<TContext>(IEnumerable<IChainOfResponsibilityS
         Func<TContext, CancellationToken?, Task>? lastAction = null;
         foreach (var step in steps.OrderByDescending(x => x.Order))
         {
+            if(ct?.IsCancellationRequested == true)
+            {
+                break;
+            }
             var temp = lastAction;
             if (lastAction != null)
             {
@@ -50,8 +54,11 @@ public class ChainOfResponsibility<TContext>(IEnumerable<IChainOfResponsibilityS
             }
         }
 
-        await lastAction!(context, ct);
-        
+        if(ct?.IsCancellationRequested != true)
+        {
+            await lastAction!(context, ct);
+        }
+
         return context;
     }
 }

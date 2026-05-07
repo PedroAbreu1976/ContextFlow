@@ -95,6 +95,65 @@ public class DependencyGraphTests
         Assert.Equal(cts.Token, tokenFromStepB);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_DoesNotExecuteAnyStep_WhenCancellationAlreadyRequested()
+    {
+        var context = new TestContext();
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var steps = new IDependencyGraphStep<TestContext>[]
+        {
+            new StepA((testContext, _) =>
+            {
+                testContext.ExecutedSteps.Add("A");
+                return true;
+            }),
+            new StepB((testContext, _) =>
+            {
+                testContext.ExecutedSteps.Add("B");
+                return true;
+            })
+        };
+
+        var sut = new DependencyGraph<TestContext>(steps);
+        await sut.ExecuteAsync(context, cts.Token);
+
+        Assert.Empty(context.ExecutedSteps);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_StopsExecutingRemainingSteps_WhenCancellationRequestedDuringExecution()
+    {
+        var context = new TestContext();
+        var cts = new CancellationTokenSource();
+
+        var steps = new IDependencyGraphStep<TestContext>[]
+        {
+            new StepA((testContext, _) =>
+            {
+                testContext.ExecutedSteps.Add("A");
+                cts.Cancel();
+                return true;
+            }),
+            new StepB((testContext, _) =>
+            {
+                testContext.ExecutedSteps.Add("B");
+                return true;
+            }),
+            new StepD((testContext, _) =>
+            {
+                testContext.ExecutedSteps.Add("D");
+                return true;
+            })
+        };
+
+        var sut = new DependencyGraph<TestContext>(steps);
+        await sut.ExecuteAsync(context, cts.Token);
+
+        Assert.Equal(["A"], context.ExecutedSteps);
+    }
+
     private sealed class TestContext : IContext
     {
         public List<string> ExecutedSteps { get; } = [];
@@ -123,6 +182,16 @@ public class DependencyGraphTests
     private sealed class StepC(Func<TestContext, CancellationToken?, bool> callback) : IDependencyGraphStep<TestContext>
     {
         public Type[] PreviousTypes { get; } = [typeof(StepA), typeof(StepB)];
+
+        public Task<bool> ExecuteAsync(TestContext context, CancellationToken? ct = default)
+        {
+            return Task.FromResult(callback(context, ct));
+        }
+    }
+
+    private sealed class StepD(Func<TestContext, CancellationToken?, bool> callback) : IDependencyGraphStep<TestContext>
+    {
+        public Type[] PreviousTypes { get; } = [];
 
         public Task<bool> ExecuteAsync(TestContext context, CancellationToken? ct = default)
         {

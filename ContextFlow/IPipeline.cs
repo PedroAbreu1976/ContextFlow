@@ -12,7 +12,7 @@ public interface IPipeline<TContext> where TContext : IContext
     /// <param name="context">The context being processed.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The processed context.</returns>
-    Task<TContext> ExecuteAsync(TContext context, CancellationToken ct = default);
+    Task<TContext> ExecuteAsync(TContext context, CancellationToken? ct = default);
 }
 
 /// <summary>
@@ -39,7 +39,7 @@ public class Pipeline<TContext> : IPipeline<TContext>
     /// <param name="context">The context being processed.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns>The processed context.</returns>
-    public async Task<TContext> ExecuteAsync(TContext context, CancellationToken ct = default)
+    public async Task<TContext> ExecuteAsync(TContext context, CancellationToken? ct = default)
     {
         if (!_steps.Any())
         {
@@ -48,7 +48,11 @@ public class Pipeline<TContext> : IPipeline<TContext>
 
         foreach (var step in _steps.OrderBy(x => x.Order))
         {
-            var result = await step.ExecuteAsync(context);
+            if(ct?.IsCancellationRequested == true)
+            {
+                break;
+            }
+            var result = await step.ExecuteAsync(context, ct ?? default);
             if (!result)
             {
                 break;

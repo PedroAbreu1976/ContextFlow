@@ -57,6 +57,10 @@ public class DependencyGraph<TContext>(IEnumerable<IDependencyGraphStep<TContext
 
         foreach (var stepExecution in stepExecutions.Where(se => se.HasNoDependencies()))
         {
+            if(ct?.IsCancellationRequested == true)
+            {
+                break;
+            }
             await stepExecution.ExecuteAsync(context, ct);
         }
 
@@ -91,6 +95,10 @@ public class DependencyGraph<TContext>(IEnumerable<IDependencyGraphStep<TContext
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ExecuteAsync(TContext context, CancellationToken? ct)
         {
+            if (ct?.IsCancellationRequested == true)
+            {
+                return;
+            }
             var sucess = await Step.ExecuteAsync(context, ct);
             Executed = true;
             Sucess = sucess;
