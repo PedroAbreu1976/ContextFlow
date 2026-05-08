@@ -74,7 +74,7 @@ public class ServiceCollectionExtensionsTests
     {
         public int Order => 1;
 
-        public Task<bool> ExecuteAsync(PipelineContext context, CancellationToken ct = default)
+        public Task<bool> ExecuteAsync(PipelineContext context, CancellationToken? ct = default)
         {
             return Task.FromResult(true);
         }

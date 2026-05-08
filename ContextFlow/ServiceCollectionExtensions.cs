@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ContextFlow.Options;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace ContextFlow;
@@ -16,6 +18,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddPipelines(this IServiceCollection services, params Assembly[] assemblies)
     {
+        services.ConfigureOptions<ContextFlowConfigurationSetup>();
+
         var typesMetadata = assemblies?
             .SelectMany(x => x.GetContextTypes())
             .ToDictionary(
@@ -61,7 +65,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    
+    public static IServiceCollection AddContextFlowOptions(this IServiceCollection services, Action<ContextFlowConfiguration> configuration)
+    {
+        if (configuration is not null)
+        {
+            services.PostConfigure<ContextFlowConfiguration>(configuration);
+        }
+        return services;
+    }
+
 
     /// <summary>
     /// Gets all concrete context types from the specified assembly.

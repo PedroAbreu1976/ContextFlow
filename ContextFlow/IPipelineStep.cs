@@ -15,12 +15,12 @@ public interface IPipelineStep<TContext> //: IPipelineStep
     /// <param name="context">The context being processed.</param>
     /// <param name="ct">The cancellation token.</param>
     /// <returns><see langword="true"/> to continue pipeline execution; otherwise, <see langword="false"/>.</returns>
-    Task<bool> ExecuteAsync(TContext context, CancellationToken ct = default);
+    Task<bool> ExecuteAsync(TContext context, CancellationToken? ct = default);
 }
 
 public abstract class PipelineStep<TContext>(int order) : IPipelineStep<TContext>
     where TContext : IContext
 {
     public int Order => order;
-    public abstract Task<bool> ExecuteAsync(TContext context, CancellationToken ct = default);
+    public abstract Task<bool> ExecuteAsync(TContext context, CancellationToken? ct = default);
 }

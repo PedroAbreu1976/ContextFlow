@@ -160,11 +160,11 @@ public class PipelineTests
         public List<string> ExecutedSteps { get; } = [];
     }
 
-    private sealed class DelegateStep(int order, Func<TestContext, CancellationToken, bool> callback) : IPipelineStep<TestContext>
+    private sealed class DelegateStep(int order, Func<TestContext, CancellationToken?, bool> callback) : IPipelineStep<TestContext>
     {
         public int Order { get; } = order;
 
-        public Task<bool> ExecuteAsync(TestContext context, CancellationToken ct = default)
+        public Task<bool> ExecuteAsync(TestContext context, CancellationToken? ct = default)
         {
             return Task.FromResult(callback(context, ct));
         }
