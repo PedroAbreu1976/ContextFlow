@@ -5,10 +5,13 @@ using System.Reflection;
 using ContextFlow.Demo.ChainDemo;
 using ContextFlow.Demo.PipelineDemo;
 using ContextFlow.Demo.GraphDemo;
+using System.Net;
+using Microsoft.Extensions.Logging;
 
 Console.WriteLine("Hello, World!");
 var provider = new ServiceCollection()
-    .AddPipelines(Assembly.GetExecutingAssembly())
+    .AddLogging(b=>b.AddConsole())
+    .AddPipelines([Assembly.GetExecutingAssembly()], opt=> { opt.LogExecution = true; })
     .BuildServiceProvider();
 
 var pipeline = provider.GetRequiredService<IPipeline<PipelineContext>>();

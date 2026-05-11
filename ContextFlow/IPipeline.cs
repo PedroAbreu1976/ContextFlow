@@ -22,7 +22,7 @@ public interface IPipeline<TContext> where TContext : IContext
 /// Implements a pipeline that executes steps in order until one fails or all complete.
 /// </summary>
 /// <typeparam name="TContext">The type of context being processed.</typeparam>
-public class Pipeline<TContext>(IEnumerable<IPipelineStep<TContext>> steps) : IPipeline<TContext>
+public class Pipeline<TContext>(IEnumerable<IPipelineStep<TContext>> steps, ContextFlowLogger logger) : IPipeline<TContext>
     where TContext : IContext
 {
     /// <summary>
@@ -33,23 +33,40 @@ public class Pipeline<TContext>(IEnumerable<IPipelineStep<TContext>> steps) : IP
     /// <returns>The processed context.</returns>
     public async Task<TContext> ExecuteAsync(TContext context, CancellationToken? ct = default)
     {
-        if (!steps.Any())
+        logger.Info(this, $"Starting pipeline execution for context of type {typeof(TContext).Name}");
+        try
         {
-            throw new ArgumentException($"No steps found for context of type {context.GetType().Name}");
-        }
+            if (!steps.Any())
+            {
+                throw new ArgumentException($"No steps found for context of type {context.GetType().Name}");
+            }
 
-        foreach (var step in steps.OrderBy(x => x.Order))
-        {
-            if(ct?.IsCancellationRequested == true)
+            foreach (var step in steps.OrderBy(x => x.Order))
             {
-                break;
+                try
+                {
+                    if (ct?.IsCancellationRequested == true)
+                    {
+                        break;
+                    }
+                    var result = await step.ExecuteAsync(context, ct ?? default);
+                    if (!result)
+                    {
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(this, ex, $"Error executing step of type {step.GetType().Name} for context of type {typeof(TContext).Name}");
+                    throw;
+                }
             }
-            var result = await step.ExecuteAsync(context, ct ?? default);
-            if (!result)
-            {
-                break;
-            }
+            return context;
         }
-        return context;
+        catch (Exception ex)
+        {
+            logger.Error(this, ex, $"Pipeline execution failed for context of type {typeof(TContext).Name}");
+            throw;
+        }
     }
 }
