@@ -14,8 +14,8 @@ var provider = new ServiceCollection()
     .AddPipelines([Assembly.GetExecutingAssembly()], opt=> { opt.LogExecution = true; })
     .BuildServiceProvider();
 
-var pipeline = provider.GetRequiredService<IPipeline<PipelineContext>>();
-var pipelineContext = new PipelineContext();
+var pipeline = provider.GetRequiredService<IPipeline<LoanPreApprovalContext>>();
+var pipelineContext = new LoanPreApprovalContext();
 await pipeline.ExecuteAsync(pipelineContext);
 Console.WriteLine(pipelineContext.ToString());
 
