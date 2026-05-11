@@ -24,7 +24,7 @@ var chainContext = new LoanPreApprovalChainContext();
 await chain.ExecuteAsync(chainContext);
 Console.WriteLine(chainContext.ToString());
 
-var graph = provider.GetRequiredService<IDependencyGraph<GraphContext>>();
-var graphContext = new GraphContext();
+var graph = provider.GetRequiredService<IDependencyGraph<LoanPreApprovalGraphContext>>();
+var graphContext = new LoanPreApprovalGraphContext();
 await graph.ExecuteAsync(graphContext);
 Console.WriteLine(graphContext.ToString());
