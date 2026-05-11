@@ -1,6 +1,6 @@
 ﻿namespace ContextFlow.Demo.PipelineDemo;
 
-public class LoanPreApprovalContext : BaseContext
+public class LoanPreApprovalPipelineContext : BaseContext
 {
     public string ApplicantId { get; set; } = string.Empty;
     public decimal AnnualIncome { get; set; }
@@ -20,7 +20,7 @@ public class LoanPreApprovalContext : BaseContext
         var reasons = DecisionReasons.Count == 0 ? "none" : string.Join(" | ", DecisionReasons);
         return string.Join(Environment.NewLine,
         [
-            $"{nameof(LoanPreApprovalContext)}:",
+            $"{nameof(LoanPreApprovalPipelineContext)}:",
             $"  ApplicantId: {ApplicantId}",
             $"  CreditScore: {CreditScore}",
             $"  DTI: {DebtToIncomeRatio:P2}",

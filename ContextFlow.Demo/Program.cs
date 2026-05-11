@@ -14,13 +14,13 @@ var provider = new ServiceCollection()
     .AddPipelines([Assembly.GetExecutingAssembly()], opt=> { opt.LogExecution = true; })
     .BuildServiceProvider();
 
-var pipeline = provider.GetRequiredService<IPipeline<LoanPreApprovalContext>>();
-var pipelineContext = new LoanPreApprovalContext();
+var pipeline = provider.GetRequiredService<IPipeline<LoanPreApprovalPipelineContext>>();
+var pipelineContext = new LoanPreApprovalPipelineContext();
 await pipeline.ExecuteAsync(pipelineContext);
 Console.WriteLine(pipelineContext.ToString());
 
-var chain = provider.GetRequiredService<IChainOfResponsibility<ChainContext>>();
-var chainContext = new ChainContext();
+var chain = provider.GetRequiredService<IChainOfResponsibility<LoanPreApprovalChainContext>>();
+var chainContext = new LoanPreApprovalChainContext();
 await chain.ExecuteAsync(chainContext);
 Console.WriteLine(chainContext.ToString());
 

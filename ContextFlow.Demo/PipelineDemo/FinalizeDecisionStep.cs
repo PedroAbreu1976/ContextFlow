@@ -1,10 +1,10 @@
 namespace ContextFlow.Demo.PipelineDemo;
 
-public class FinalizeDecisionStep : IPipelineStep<LoanPreApprovalContext>
+public class FinalizeDecisionStep : IPipelineStep<LoanPreApprovalPipelineContext>
 {
     public int Order => 60;
 
-    public Task<bool> ExecuteAsync(LoanPreApprovalContext context, CancellationToken? ct = default)
+    public Task<bool> ExecuteAsync(LoanPreApprovalPipelineContext context, CancellationToken? ct = default)
     {
         ct?.ThrowIfCancellationRequested();
 
