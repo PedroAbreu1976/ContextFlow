@@ -47,11 +47,15 @@ public class Pipeline<TContext>(IEnumerable<IPipelineStep<TContext>> steps, Cont
                 {
                     if (ct?.IsCancellationRequested == true)
                     {
+                        logger.Warn(this, $"Cancelation request on pipeline execution for context of type {typeof(TContext).Name}");
                         break;
                     }
+                    logger.Info(this, $"Starting pipeline step {step.GetType().Name} for context of type {typeof(TContext).Name}");
                     var result = await step.ExecuteAsync(context, ct ?? default);
+                    logger.Info(this, $"Finish pipeline step {step.GetType().Name} for context of type {typeof(TContext).Name}");
                     if (!result)
                     {
+                        logger.Warn(this, $"Pipeline step {step.GetType().Name} returned false halting the execution of pipeline for context of type {typeof(TContext).Name}");
                         break;
                     }
                 }
@@ -61,6 +65,7 @@ public class Pipeline<TContext>(IEnumerable<IPipelineStep<TContext>> steps, Cont
                     throw;
                 }
             }
+            logger.Info(this, $"Finish pipeline execution for context of type {typeof(TContext).Name}");
             return context;
         }
         catch (Exception ex)
