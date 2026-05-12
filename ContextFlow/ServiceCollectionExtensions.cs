@@ -11,12 +11,12 @@ namespace ContextFlow;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers pipeline-related services discovered in the provided assemblies.
+    /// Registers context flow related services discovered in the provided assemblies.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="assemblies">Assemblies to scan for contexts and steps.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddPipelines(
+    public static IServiceCollection AddContextFlows(
         this IServiceCollection services, 
         Assembly[] assemblies, 
         Action<ContextFlowConfiguration>? configuration =  default)

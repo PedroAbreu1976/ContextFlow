@@ -5,20 +5,20 @@ namespace ContextFlow.Tests;
 public class ServiceCollectionExtensionsTests
 {
     [Fact]
-    public void AddPipelines_ReturnsSameServiceCollection()
+    public void AddContextFlows_ReturnsSameServiceCollection()
     {
         var services = new ServiceCollection();
 
-        var result = services.AddPipelines(typeof(ServiceCollectionExtensionsTests).Assembly);
+        var result = services.AddContextFlows([typeof(ServiceCollectionExtensionsTests).Assembly]);
 
         Assert.Same(services, result);
     }
 
     [Fact]
-    public void AddPipelines_RegistersPipelineAndSteps_ForDiscoveredContext()
+    public void AddContextFlows_RegistersPipelineAndSteps_ForDiscoveredContext()
     {
         var services = new ServiceCollection();
-        services.AddPipelines(typeof(ServiceCollectionExtensionsTests).Assembly);
+        services.AddContextFlows([typeof(ServiceCollectionExtensionsTests).Assembly]);
         var provider = services.BuildServiceProvider();
 
         var pipeline = provider.GetService<IPipeline<PipelineContext>>();
@@ -29,10 +29,10 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddPipelines_RegistersChainAndSteps_ForDiscoveredContext()
+    public void AddContextFlows_RegistersChainAndSteps_ForDiscoveredContext()
     {
         var services = new ServiceCollection();
-        services.AddPipelines(typeof(ServiceCollectionExtensionsTests).Assembly);
+        services.AddContextFlows([typeof(ServiceCollectionExtensionsTests).Assembly]);
         var provider = services.BuildServiceProvider();
 
         var chain = provider.GetService<IChainOfResponsibility<ChainContext>>();
@@ -43,10 +43,10 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddPipelines_RegistersDependencyGraphAndSteps_ForDiscoveredContext()
+    public void AddContextFlows_RegistersDependencyGraphAndSteps_ForDiscoveredContext()
     {
         var services = new ServiceCollection();
-        services.AddPipelines(typeof(ServiceCollectionExtensionsTests).Assembly);
+        services.AddContextFlows([typeof(ServiceCollectionExtensionsTests).Assembly]);
         var provider = services.BuildServiceProvider();
 
         var graph = provider.GetService<IDependencyGraph<DependencyContext>>();
@@ -57,10 +57,10 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddPipelines_DoesNotRegisterExecutionServices_WhenContextHasNoSteps()
+    public void AddContextFlows_DoesNotRegisterExecutionServices_WhenContextHasNoSteps()
     {
         var services = new ServiceCollection();
-        services.AddPipelines(typeof(ServiceCollectionExtensionsTests).Assembly);
+        services.AddContextFlows([typeof(ServiceCollectionExtensionsTests).Assembly]);
         var provider = services.BuildServiceProvider();
 
         Assert.Null(provider.GetService<IPipeline<NoStepContext>>());

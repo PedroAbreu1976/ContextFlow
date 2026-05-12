@@ -1,11 +1,15 @@
 ﻿namespace ContextFlow.Tests;
 
+using ContextFlow.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 public class PipelineTests
 {
     [Fact]
     public async Task ExecuteAsync_Throws_WhenNoStepsFound()
     {
-        var sut = new Pipeline<TestContext>([]);
+        var sut = new Pipeline<TestContext>([], CreateLogger());
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => sut.ExecuteAsync(new TestContext()));
 
@@ -35,7 +39,7 @@ public class PipelineTests
             })
         };
 
-        var sut = new Pipeline<TestContext>(steps);
+        var sut = new Pipeline<TestContext>(steps, CreateLogger());
         var result = await sut.ExecuteAsync(context);
 
         Assert.Same(context, result);
@@ -65,7 +69,7 @@ public class PipelineTests
             })
         };
 
-        var sut = new Pipeline<TestContext>(steps);
+        var sut = new Pipeline<TestContext>(steps, CreateLogger());
         await sut.ExecuteAsync(context);
 
         Assert.Equal(["first", "stop"], context.ExecutedSteps);
@@ -93,7 +97,7 @@ public class PipelineTests
             })
         };
 
-        var sut = new Pipeline<TestContext>(steps);
+        var sut = new Pipeline<TestContext>(steps, CreateLogger());
         await sut.ExecuteAsync(context, cts.Token);
 
         Assert.Equal(cts.Token, tokenFromFirstStep);
@@ -121,7 +125,7 @@ public class PipelineTests
             })
         };
 
-        var sut = new Pipeline<TestContext>(steps);
+        var sut = new Pipeline<TestContext>(steps, CreateLogger());
         var result = await sut.ExecuteAsync(context, cts.Token);
 
         Assert.Same(context, result);
@@ -149,7 +153,7 @@ public class PipelineTests
             })
         };
 
-        var sut = new Pipeline<TestContext>(steps);
+        var sut = new Pipeline<TestContext>(steps, CreateLogger());
         await sut.ExecuteAsync(context, cts.Token);
 
         Assert.Equal(["first"], context.ExecutedSteps);
@@ -168,6 +172,14 @@ public class PipelineTests
         {
             return Task.FromResult(callback(context, ct));
         }
+    }
+
+    private static ContextFlowLogger CreateLogger()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        var provider = services.BuildServiceProvider();
+        return new ContextFlowLogger(provider, Options.Create(new ContextFlowConfiguration()));
     }
 
     

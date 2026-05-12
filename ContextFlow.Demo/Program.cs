@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 Console.WriteLine("Hello, World!");
 var provider = new ServiceCollection()
     .AddLogging(b=>b.AddConsole())
-    .AddPipelines([Assembly.GetExecutingAssembly()], opt=> { opt.LogExecution = true; })
+    .AddContextFlows([Assembly.GetExecutingAssembly()], opt=> { opt.LogExecution = true; })
     .BuildServiceProvider();
 
 var pipeline = provider.GetRequiredService<IPipeline<LoanPreApprovalPipelineContext>>();
